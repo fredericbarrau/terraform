@@ -176,30 +176,33 @@ func resourceAwsVpcRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("enable_dns_hostnames", *resp.EnableDnsHostnames.Value)
 
-	DescribeClassiclinkOpts := &ec2.DescribeVpcClassicLinkInput{
-		VpcIds: []*string{&vpcid},
-	}
+	// DescribeClassiclinkOpts := &ec2.DescribeVpcClassicLinkInput{
+	// 	VpcIds: []*string{&vpcid},
+	// }
+
+	// Classic Link is incompatible for outscale -> disabling it
+	d.Set("enable_classiclink", false)
 
 	// Classic Link is only available in regions that support EC2 Classic
-	respClassiclink, err := conn.DescribeVpcClassicLink(DescribeClassiclinkOpts)
-	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "UnsupportedOperation" {
-			log.Printf("[WARN] VPC Classic Link is not supported in this region")
-		} else {
-			return err
-		}
-	} else {
-		classiclink_enabled := false
-		for _, v := range respClassiclink.Vpcs {
-			if *v.VpcId == vpcid {
-				if v.ClassicLinkEnabled != nil {
-					classiclink_enabled = *v.ClassicLinkEnabled
-				}
-				break
-			}
-		}
-		d.Set("enable_classiclink", classiclink_enabled)
-	}
+	// respClassiclink, err := conn.DescribeVpcClassicLink(DescribeClassiclinkOpts)
+	// if err != nil {
+	// 	if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "UnsupportedOperation" {
+	// 		log.Printf("[WARN] VPC Classic Link is not supported in this region")
+	// 	} else {
+	// 		return err
+	// 	}
+	// } else {
+	// 	classiclink_enabled := false
+	// 	for _, v := range respClassiclink.Vpcs {
+	// 		if *v.VpcId == vpcid {
+	// 			if v.ClassicLinkEnabled != nil {
+	// 				classiclink_enabled = *v.ClassicLinkEnabled
+	// 			}
+	// 			break
+	// 		}
+	// 	}
+	// 	d.Set("enable_classiclink", classiclink_enabled)
+	// }
 
 	// Get the main routing table for this VPC
 	// Really Ugly need to make this better - rmenn

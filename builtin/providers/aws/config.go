@@ -218,7 +218,9 @@ func (c *Config) Client() (interface{}, error) {
 	// signature format v4 requires region to be us-east-1 for global
 	// endpoints:
 	// http://docs.aws.amazon.com/general/latest/gr/sigv4_changes.html
-	usEast1Sess := sess.Copy(&aws.Config{Region: aws.String("us-east-1")})
+	//usEast1Sess := sess.Copy(&aws.Config{Region: aws.String("us-east-1")})
+	// no specifi endpoint for outscale : using common
+	usEast1Sess := sess.Copy(&aws.Config{Endpoint: aws.String(c.Ec2Endpoint)})
 
 	// Some services have user-configurable endpoints
 	awsEc2Sess := sess.Copy(&aws.Config{Endpoint: aws.String(c.Ec2Endpoint)})
@@ -315,6 +317,8 @@ func (c *Config) ValidateRegion() error {
 		"us-gov-west-1",
 		"us-west-1",
 		"us-west-2",
+		// addding outscale regions
+		"eu-west-2"
 	}
 
 	for _, valid := range regions {
